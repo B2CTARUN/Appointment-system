@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id         String  @id @default(uuid())
+  name       String
+  email      String  @unique
+  role       String  // "student", "faculty", "admin"
+  department String?
+  avatar     String?
+
+  appointmentsAsStudent Appointment[] @relation("studentAppointments")
+  appointmentsAsFaculty Appointment[] @relation("facultyAppointments")
+  classes               ClassSession[] 
+}
+
+model Course {
+  id         String         @id @default(uuid())
+  name       String
+  code       String         @unique
+  department String
+  credits    Int
+  classes    ClassSession[]
+}
+
+model ClassSession {
+  id        String   @id @default(uuid())
+  courseId  String
+  facultyId String
+  roomId    String
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  type      String   // "lecture", "lab", "tutorial"
+
+  course  Course @relation(fields: [courseId], references: [id])
+  faculty User   @relation(fields: [facultyId], references: [id])
+}
+
+model Appointment {
+  id        String @id @default(uuid())
+  studentId String
+  facultyId String
+  date      String
+  startTime String
+  endTime   String
+  status    String // "pending", "approved", "declined"
+  type      String // "virtual", "in-person"
+  topic     String
+
+  student User @relation("studentAppointments", fields: [studentId], references: [id])
+  faculty User @relation("facultyAppointments", fields: [facultyId], references: [id])
+}
