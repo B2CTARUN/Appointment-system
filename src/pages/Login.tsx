@@ -81,7 +81,6 @@ const Login: React.FC = () => {
               <select className="input-field" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value as Role})}>
                 <option value="student">Student</option>
                 <option value="faculty">Faculty</option>
-                <option value="admin">Admin</option>
               </select>
             </div>
           )}

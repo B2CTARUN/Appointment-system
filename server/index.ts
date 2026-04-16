@@ -118,6 +118,33 @@ app.get('/api/classes', async (req, res) => {
   }
 });
 
+app.post('/api/classes', authenticateToken, async (req, res) => {
+  try {
+    const { courseId, facultyId, roomId, dayOfWeek, startTime, endTime, type } = req.body;
+    const newClass = new ClassSession({
+      courseId, facultyId, roomId, dayOfWeek, startTime, endTime, type
+    });
+    await newClass.save();
+    
+    // Return populated class so frontend can use it directly
+    const popClass = await ClassSession.findById(newClass._id).populate('courseId').populate('facultyId', '-password');
+    res.json(popClass);
+  } catch (error) {
+    console.error('Failed to create class:', error);
+    res.status(500).json({ error: 'Failed to create class' });
+  }
+});
+
+app.delete('/api/classes/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await ClassSession.findByIdAndDelete(id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete class' });
+  }
+});
+
 app.get('/api/courses', async (req, res) => {
   try {
     const courses = await Course.find();

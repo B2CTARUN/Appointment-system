@@ -1,0 +1,96 @@
+# Backend Code Explanation - vivback.txt
+
+This file contains a brief explanation of the Node.js/Express backend code for the Appointment Project, primarily covering `server/models.ts` (database structure) and `server/index.ts` (server logic).
+
+---------------------------------------------------------
+File: server/models.ts (Database Schemas)
+---------------------------------------------------------
+Line 1: import mongoose from 'mongoose'; - Imports the Mongoose library to interface with MongoDB.
+Lines 3-4: Begins definition of the `userSchema` which maps to the "users" collection.
+Lines 5-7: Defines 'name', 'email', and 'password' as required strings. 'email' is marked as unique.
+Line 8: Defines 'role' as a string restricted to either 'student', 'faculty', or 'admin'.
+Lines 9-10: Defines optional 'department' and 'avatar' fields.
+Line 11: Closes the user schema definition.
+Line 13: Compiles the schema into a Mongoose model named `User` and exports it.
+
+Lines 15-16: Begins definition for `courseSchema` to store university courses.
+Lines 17-21: Declares 'name', 'code', 'department', and 'credits'. 'code' is uniquely constrained.
+Line 23: Exports the compiled `Course` model.
+
+Lines 25-26: Begins definition for `classSessionSchema` to represent scheduled class slots.
+Lines 27-28: References the `Course` and `User` (faculty) collections via their ObjectIds.
+Lines 29-34: Stores room ID, day of the week (0-6), start/end times, and type (lecture, lab, tutorial).
+Line 36: Exports the compiled `ClassSession` model.
+
+Lines 38-39: Begins definition for `appointmentSchema` to manage student-faculty meetings.
+Lines 40-41: Foreign keys referencing the `User` collection for the student and the faculty member.
+Lines 42-44: Stores the date (YYYY-MM-DD), startTime, and endTime of the appointment.
+Line 45: Sets a 'status' field with a default of 'pending', updatable to 'approved' or 'declined'.
+Line 46: Sets a 'type' field restricting meetings to 'virtual' or 'in-person'.
+Line 47: Stores the 'topic' or reason for the meeting.
+Line 50: Exports the compiled `Appointment` model.
+
+
+---------------------------------------------------------
+File: server/index.ts (Express Server & API Routes)
+---------------------------------------------------------
+Lines 1-5: Import external dependencies required for the application (express, cors, mongoose, bcryptjs, jsonwebtoken).
+Line 6: Imports the Mongoose database models defined in `models.ts`.
+
+Lines 8-11: Initializes the `app` using express, defines the running PORT (3001), the connection URI for the local MongoDB, and a Secret Key used for signing JWT tokens.
+
+Lines 13-14: Employs standard middleware: `cors()` allows frontend applications to make requests to the API, and `express.json()` enables the parsing of incoming JSON payload data.
+
+Lines 16-19: Calls `mongoose.connect()` to connect to the MongoDB instance. If successful, logs a success message; otherwise, logs the resulting error.
+
+Lines 21-33: Defines `authenticateToken`, a custom middleware function to verify user authentication.
+- Line 23-24: Extracts the Bearer token from the 'authorization' HTTP header.
+- Line 26: Responds with a 401 error if no token is found.
+- Lines 28-32: Uses `jwt.verify()` to validate the token against the JWT_SECRET. If valid, attaches the decoded `user` payload to the request (`req.user`) and calls `next()` to proceed to the route handler.
+
+Lines 35-67: POST `/api/auth/signup` - Registers a new user.
+- Line 38: Destructures name, email, password, and role from the request body.
+- Lines 40-42: Queries the DB to ensure a user with this email doesn't already exist to prevent duplicates.
+- Line 44: Hashes the plaintext password utilizing bcrypt with 10 salt rounds for security.
+- Lines 45-52: Creates a new `User` document instance with the hashed password, a default department, and an auto-generated random avatar.
+- Line 54: Saves the new user to the database.
+- Line 56: Generates a JSON Web Token encasing the user's ID, role, and email, expiring in 24 hours.
+- Lines 58-60: Removes the hashed password from the response object so it isn't leaked to the client.
+- Line 62: Responds with the created JWT token and sanitized user object.
+
+Lines 69-89: POST `/api/auth/login` - Authenticates an existing user.
+- Line 71: Destructures email and password from the incoming request payload.
+- Lines 73-74: Searches for the user by email, returning a 401 Unauthorized if not found.
+- Lines 76-77: Compares the ingested password with the stored hash using bcrypt. If incorrect, aborts with a 401 error.
+- Line 79: Creates a new JWT token valid for the next 24 hours.
+- Lines 81-84: Strips out the password and returns the auth token and user object back to the client.
+
+Lines 91-99: GET `/api/auth/me` - Retrieves the currently logged-in user's profile.
+- Line 91: Employs the `authenticateToken` middleware.
+- Line 93: Queries for the user document referencing the token's user ID, expressly omitting the password field.
+
+Lines 103-110: GET `/api/users` - Fetches a list of all users.
+- Line 105: Returns all user documents stripped of passwords (useful for public listings and debugging).
+
+Lines 112-119: GET `/api/classes` - Fetches all scheduled classes.
+- Line 114: Fetches all `ClassSession` documents and `populate`s the referenced 'courseId' and 'facultyId', resolving them from ObjectIds into their full associated document objects.
+
+Lines 121-128: GET `/api/courses` - Fetches all available courses.
+
+Lines 130-137: GET `/api/appointments` - Retrieves a directory of all appointments.
+- Line 130: Requires the user to be authenticated.
+- Line 132: Uses `populate` to fetch comprehensive student and faculty details for every appointment, while hiding their passwords.
+
+Lines 139-161: POST `/api/appointments` - Creates a new appointment booking.
+- Line 139: Requires authentication via the previously assigned `authenticateToken` middleware.
+- Line 141: Destructures appointment context properties from the body.
+- Lines 142-152: Instantiates a new DB `Appointment` record ensuring the `status` initialized natively to 'pending', and saves to DB.
+- Lines 155-156: Refetches the freshly saved appointment utilizing `populate` directly before returning it to the client.
+
+Lines 163-173: PATCH `/api/appointments/:id` - Updates an existing appointment's status.
+- Line 165: Identifies the targeted appointment ID out of the URL parameters.
+- Line 167-168: Uses `findByIdAndUpdate` to mutate the document's 'status' column. Passing `{ new: true }` instructs it to output the modified document rather than the old version. Populates dependent references as well.
+- Line 169: Returns the modified appointment doc to the client.
+
+Lines 175-177: Bootstraps the backend server listener.
+- Line 176: Start answering HTTP requests on `localhost:3001` and prints confirmation to console.

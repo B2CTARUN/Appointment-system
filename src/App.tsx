@@ -7,6 +7,9 @@ import MainLayout from './components/layout/MainLayout';
 import Timetable from './pages/Timetable';
 import Appointments from './pages/Appointments';
 
+import AdminUsers from './pages/AdminUsers';
+import AdminSchedule from './pages/AdminSchedule';
+
 function AppContent() {
   const { user } = useAuth();
 
@@ -20,6 +23,15 @@ function AppContent() {
         <Route index element={<Dashboard />} />
         <Route path="timetable" element={<Timetable />} />
         <Route path="appointments" element={<Appointments />} />
+        
+        {/* Admin Routes */}
+        {user.role === 'admin' && (
+          <>
+            <Route path="admin/users" element={<AdminUsers />} />
+            <Route path="admin/schedule" element={<AdminSchedule />} />
+          </>
+        )}
+        
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

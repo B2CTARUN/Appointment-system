@@ -13,8 +13,7 @@ const Sidebar: React.FC = () => {
     { name: 'Timetable', path: '/timetable', icon: <Calendar size={20} />, roles: ['student', 'faculty'] },
     { name: 'Appointments', path: '/appointments', icon: <Clock size={20} />, roles: ['student', 'faculty'] },
     { name: 'Schedule Admin', path: '/admin/schedule', icon: <Calendar size={20} />, roles: ['admin'] },
-    { name: 'Users', path: '/admin/users', icon: <Users size={20} />, roles: ['admin'] },
-    { name: 'Rooms', path: '/admin/rooms', icon: <Settings size={20} />, roles: ['admin'] },
+    { name: 'Users', path: '/admin/users', icon: <Users size={20} />, roles: ['admin'] }
   ];
 
   return (

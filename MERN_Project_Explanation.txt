@@ -1,0 +1,52 @@
+College Scheduling & Appointment Booking System
+===================================================
+
+This project was built using the MERN stack (MongoDB, Express, React, Node.js).
+Below is a step-by-step explanation of each component and how they fit together in the architecture.
+
+===================================================
+1. Frontend (React) - Built with Vite & TypeScript
+===================================================
+The user interface is built using React to provide a fast, dynamic, and responsive experience for users booking appointments or managing schedules.
+
+- Main Files/Folders:
+  - `src/App.tsx` & `src/main.tsx`: The entry points of the React application where routing and context providers are set up.
+  - `src/pages/`: Contains the main views (e.g., Dashboard, Login, Appointments).
+  - `src/components/`: Reusable UI elements (e.g., layout headers, sidebars, buttons, forms).
+  - `src/context/`: State management for managing global data (like user authentication flow).
+
+How it works:
+Users interact with the React interface. When a user logs in or books an appointment, React makes HTTP requests (using Axios or Fetch) to the backend API.
+
+===================================================
+2. Backend (Express & Node.js)
+===================================================
+The backend acts as the bridge between the React frontend and the MongoDB database. It is written in Node.js and uses the Express.js framework for routing and handling API requests.
+
+- Main Files/Folders:
+  - `server/index.ts`: The entry point for the backend server. It sets up Express, configures middleware (like CORS and JSON parsing), and defines the RESTful API endpoints (routes).
+  - `server/package.json`: Manages all the backend dependencies (Express, Mongoose, JWT, bcryptjs, etc.).
+
+How it works:
+When the frontend sends a request (e.g., "GET /api/appointments"), the Express server routes the request to the appropriate function. The server then executes the logic, communicates with the database, and sends a JSON response back to the frontend.
+
+===================================================
+3. Database (MongoDB & Mongoose)
+===================================================
+MongoDB is a NoSQL database used to store all application data (users, appointments, availability). Mongoose is an Object Data Modeling (ODM) library that helps enforce a specific schema for the data.
+
+- Main Files/Folders:
+  - `server/models.ts`: Defines the Mongoose schemas and models. It structures exactly what fields an Appointment or a User should have in the database (e.g., name, time, status).
+
+How it works:
+When the Express server needs to read or write data, it uses the Mongoose models to query the MongoDB database. For example, `User.find()` fetches all users, or `Appointment.create()` saves a new booking.
+
+===================================================
+Summary of the Step-by-Step Flow:
+===================================================
+1. The user clicks "Book Appointment" in the React frontend.
+2. React sends an HTTP POST request with the appointment details to the Express/Node.js backend.
+3. Express receives the request, validates the data, and uses Mongoose to save the new appointment into MongoDB.
+4. MongoDB stores the data and confirms success to the backend.
+5. Express sends a "Success 200 OK" response back to React.
+6. React updates the UI to show the user that their appointment is confirmed.

@@ -38,6 +38,8 @@ interface ScheduleContextType {
   appointments: Appointment[];
   bookAppointment: (appointment: Partial<Appointment>) => Promise<void>;
   updateAppointmentStatus: (id: string, status: 'approved' | 'declined') => Promise<void>;
+  addClass: (cls: Partial<ClassSession>) => Promise<void>;
+  removeClass: (id: string) => Promise<void>;
 }
 
 const ScheduleContext = createContext<ScheduleContextType | undefined>(undefined);
@@ -67,7 +69,7 @@ export const ScheduleProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   useEffect(() => {
     fetchScheduleData();
-  }, []);
+  }, [token]);
 
   const bookAppointment = async (appointment: Partial<Appointment>) => {
     try {
@@ -104,8 +106,39 @@ export const ScheduleProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
+  const addClass = async (cls: Partial<ClassSession>) => {
+    try {
+      const res = await fetch('/api/classes', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(cls)
+      });
+      const newClass = await res.json();
+      setClasses(prev => [...prev, newClass]);
+    } catch (error) {
+      console.error('Error adding class', error);
+    }
+  };
+
+  const removeClass = async (id: string) => {
+    try {
+      const res = await fetch(`/api/classes/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setClasses(prev => prev.filter(c => c._id !== id));
+      }
+    } catch (error) {
+      console.error('Error removing class', error);
+    }
+  };
+
   return (
-    <ScheduleContext.Provider value={{ courses, classes, appointments, bookAppointment, updateAppointmentStatus }}>
+    <ScheduleContext.Provider value={{ courses, classes, appointments, bookAppointment, updateAppointmentStatus, addClass, removeClass }}>
       {children}
     </ScheduleContext.Provider>
   );
