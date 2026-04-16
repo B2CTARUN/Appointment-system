@@ -1,8 +1,11 @@
+import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { User, Course, ClassSession, Appointment } from './models';
 
-const MONGO_URI = 'mongodb://127.0.0.1:27017/appointment-project';
+dotenv.config();
+
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/appointment-project';
 
 async function seed() {
   try {
