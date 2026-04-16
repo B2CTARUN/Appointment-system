@@ -14,6 +14,9 @@ Before running this project from scratch, ensure you have the following installe
 Ensure your local MongoDB server is active. The backend is configured to connect to your local database at:
 `mongodb://127.0.0.1:27017/appointment-project`
 
+If you want production deployment with MongoDB Atlas, use an Atlas connection string instead:
+`mongodb+srv://<username>:<password>@<cluster-url>/appointment-project?retryWrites=true&w=majority`
+
 ---
 
 ## 2. Backend Setup
