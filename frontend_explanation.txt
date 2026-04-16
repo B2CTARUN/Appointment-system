@@ -1,0 +1,69 @@
+# Frontend Code Explanation - frontend_explanation.txt
+
+This document provides a block-by-block and component-by-component breakdown of the React and Vite frontend architecture for the EduSchedule Project.
+
+---------------------------------------------------------
+File: src/main.tsx & src/App.tsx (Entry and Routing)
+---------------------------------------------------------
+- main.tsx (Lines 1-20): The core entry point. 
+  - Imports standard React libraries alongside context managers (`ThemeProvider`, `AuthProvider`, `ScheduleProvider`).
+  - Implements `ReactDOM.createRoot` to render the internal `<App />` tree, encasing it within global providers and `<React.StrictMode>`.
+- App.tsx (Lines 1-38): Enforces system navigation logic.
+  - Implements `<BrowserRouter>` to monitor and modify browser URL history.
+  - Internal `AppContent` hooks into Global Authentication to trap unauthorized visitors, resolving them firmly back to the `<Login />` component.
+  - For standard users, assigns element paths such as `/timetable` to their literal UI components (`<Timetable />`). Includes exclusive security gating resolving `/admin/...` links uniquely for 'admin' user personas.
+
+---------------------------------------------------------
+File: src/context/AuthContext.tsx (Authentication Logic)
+---------------------------------------------------------
+- Lines 1-22: Synthesizes TypeScript logic models profiling typical `User` objects (email, explicit role arrays, avatar graphics) inside the overarching authentication context payload.
+- `AuthProvider`:
+  - Primes initial internal states. Extracts saved tokens directly from persistent `localStorage`.
+  - Runs an isolated React `useEffect` cycle fetching the user footprint (`GET /api/auth/me`). Populates successful replies seamlessly into system state allowing the navbar to render their name/picture instantly. If it crashes (token expired), it erases `localStorage`.
+  - Binds custom `login` and `logout` parameters granting standard routes functional mechanisms to modify these security settings.
+
+---------------------------------------------------------
+File: src/context/ScheduleContext.tsx (Central Database State)
+---------------------------------------------------------
+- Houses TS interfaces (`Course`, `ClassSession`, `Appointment`).
+- `fetchScheduleData`: Compiles an overarching `Promise.all()` transaction making massive network captures spanning endpoints `/api/courses`, `/api/classes`, and `/api/appointments`.
+- Exposes mapped functions (`bookAppointment`, `updateAppointmentStatus`) wrapping `fetch` HTTP procedures pushing JSON payloads directly to Node APIs simulating real-time system mutation.
+- Includes `addClass` & `removeClass` to administer course creations synchronously for admin interactions.
+
+---------------------------------------------------------
+File: src/components/layout/Sidebar.tsx
+---------------------------------------------------------
+- Maps dynamically. It isolates the connected user's specific system role via Context. Maps local `navItems` combinations (e.g. standard classes view vs 'Administer Users' view).
+- Outputs dynamic `NavLink` objects ensuring aesthetic highlighting whenever navigating toward the active browser location. Evaluates and displays bottom-row user iconography explicitly bound to a system-wide `logout()` toggle.
+
+---------------------------------------------------------
+File: src/pages/Login.tsx (User Login/Signup)
+---------------------------------------------------------
+- Tracks a literal toggle `isLogin`. 
+- Overrides classical form submits via `e.preventDefault()`, substituting it pointing to node endpoints (`/api/auth/login` or `/api/auth/signup`). 
+- Compiles input contents (`name`, `email`, `password`) into the fetch request body. Captures incoming JWT payload tokens, dropping them straight into the global `login()` authenticator, instantly unlocking router permission toward `/` (Home UI).
+
+---------------------------------------------------------
+File: src/pages/Dashboard.tsx (Home UI Analytics)
+---------------------------------------------------------
+- Interprets user context logic defining independent functional layouts: (renderStudentDashboard, renderFacultyDashboard, etc.).
+- Compiles metrics executing mapping logic (e.g., retrieving `length` of pending class evaluations specific completely to the registered `user._id` identity).
+- Visualizes 'Upcoming Appointments' mathematically mapping limited ranges to dashboard card containers.
+
+---------------------------------------------------------
+File: src/pages/Timetable.tsx (Weekly Calendar Grid)
+---------------------------------------------------------
+- Constructs a comprehensive mathematical CSS grid (10 hour segments x 6 days).
+- Implements `getClassBlockStyle()`, extracting numerical index identifiers out of `startTime : endTime` timestamps. Formats these identifiers outputting strict `gridRowStart` and `gridRowEnd` CSS coordinates manually sizing UI rectangles proportionate to duration length correctly across the CSS matrix.
+
+---------------------------------------------------------
+File: src/pages/Appointments.tsx (Meetings Management)
+---------------------------------------------------------
+- Determines visual mapping: `myAppointments`. Modifies visualization logic completely based on `user?.role`. Formats targets displaying 'Faculty' mappings toward a student login vs 'Student' mappings tracking faculty users.
+- Leverages local `useEffect` triggering silently across backgrounds when Modal dialogues toggle Open caching immediate list endpoints mapping accessible University-wide faculties ensuring responsive selection inside the "Booking Select" menus.
+
+---------------------------------------------------------
+File: src/pages/AdminUsers.tsx & AdminSchedule.tsx
+---------------------------------------------------------
+- `AdminUsers.tsx`: Exclusive endpoint specifically retrieving global `/api/users`. Paints user attributes spanning email, department headers, and dynamically colored privilege indicators via Badge UI elements mapping role logic.
+- `AdminSchedule.tsx`: Contains extensive class instantiation UI properties. Imports global variables selecting exact backend entities to weave new generic objects assigning strict Room assignments, dates, duration coordinates, executing `addClass` appending records securely to standard Node architectures.
