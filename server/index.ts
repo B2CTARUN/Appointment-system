@@ -5,10 +5,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User, Course, ClassSession, Appointment } from './models';
 
-const app = express();
 const PORT = process.env.PORT || 3001;
-const MONGO_URI = 'mongodb://127.0.0.1:27017/appointment-project';
-const JWT_SECRET = 'super-secret-jwt-key-for-appointment-project';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/appointment-project';
+const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-jwt-key-for-appointment-project';
 
 app.use(cors());
 app.use(express.json());
