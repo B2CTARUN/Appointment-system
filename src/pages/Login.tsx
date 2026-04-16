@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import type { Role } from '../context/AuthContext';
-import { LogIn, UserPlus } from 'lucide-react';
+import { LogIn, UserPlus, GraduationCap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
@@ -50,7 +50,9 @@ const Login: React.FC = () => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <div className="logo-placeholder-large"></div>
+          <div className="flex justify-center mb-4 text-primary-600" style={{ color: 'var(--primary-600)' }}>
+            <GraduationCap size={48} strokeWidth={1.5} />
+          </div>
           <h2>EduSchedule</h2>
           <p className="text-muted">{isLogin ? 'Sign in to your account' : 'Create a new account'}</p>
         </div>
